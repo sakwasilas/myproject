@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -41,7 +41,7 @@
       text-align: center;
       margin: 0;
       padding: 0;
-      color:darkblue;
+      color: darkblue;
     }
 
     h1 {
@@ -59,7 +59,7 @@
       font-weight: bold;
       color: #c0392b;
       text-align: right;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     .info-field {
@@ -127,14 +127,6 @@
       line-height: 1.6;
     }
 
-    #locked {
-      margin-top: 30px;
-      font-weight: bold;
-      text-align: center;
-      color: green;
-      font-size: 1.1rem;
-    }
-
     @media (max-width: 600px) {
       .container { padding: 20px; }
       h1 { font-size: 1.3rem; }
@@ -145,11 +137,15 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="logo.jpg"alt="Summit college">
+      <img src="logo.jpg"alt="Summit technical college>
     </div>
     <h1>SUMMIT TECHNICAL COLLEGE</h1>
     <h2>Foundation Level 2 – ICT CAT 1 – 2025</h2>
+
     <div id="timer">Time Left: 60s</div>
+    <div style="width: 100%; background: #ddd; border-radius: 6px; overflow: hidden; margin-bottom: 20px;">
+      <div id="progressBar" style="width: 100%; height: 10px; background-color: #2ecc71;"></div>
+    </div>
 
     <!-- Student Info -->
     <div id="student-section">
@@ -165,7 +161,7 @@
     <div id="quiz-section" style="display: none;">
       <div class="question" id="question">Question will appear here</div>
       <form id="options"></form>
-      <button onclick="submitAnswer()">Next</button>
+      <button onclick="submitAnswer(event)">Next</button>
     </div>
 
     <!-- Results Section -->
@@ -193,6 +189,8 @@
     let currentQuestion = 0;
     let score = 0;
     let student = {};
+    let timeLeft = 60;
+    let timerInterval;
 
     const inputs = document.querySelectorAll("input[type='text']");
     inputs.forEach(input => {
@@ -211,7 +209,25 @@
 
       document.getElementById("student-section").style.display = "none";
       document.getElementById("quiz-section").style.display = "block";
+
       loadQuestion();
+      startTimer();
+    }
+
+    function startTimer() {
+      const timerDisplay = document.getElementById("timer");
+      const progressBar = document.getElementById("progressBar");
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+        progressBar.style.width = `${(timeLeft / 60) * 100}%`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          lockQuiz();
+        }
+      }, 1000);
     }
 
     function loadQuestion() {
@@ -239,7 +255,7 @@
       });
     }
 
-    function submitAnswer() {
+    function submitAnswer(event) {
       event.preventDefault();
       const selected = document.querySelector('input[name="option"]:checked');
       if (!selected) {
@@ -256,8 +272,16 @@
       if (currentQuestion < questions.length) {
         loadQuestion();
       } else {
+        clearInterval(timerInterval);
         showResults();
       }
+    }
+
+    function lockQuiz() {
+      alert("Time's up!");
+      document.querySelectorAll('input[name="option"]').forEach(input => input.disabled = true);
+      document.querySelector("#quiz-section button").disabled = true;
+      showResults();
     }
 
     function showResults() {
